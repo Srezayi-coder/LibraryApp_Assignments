@@ -2,6 +2,7 @@ package com.library.steps;
 
 import com.library.pages.BasePage;
 import com.library.pages.BookPage;
+import com.library.pages.BorrowedBooksPage;
 import com.library.pages.DashBoardPage;
 import com.library.utility.BrowserUtil;
 import com.library.utility.DB_Util;
@@ -112,4 +113,94 @@ public class BooksPageStepDefs {
     public void verifyIsTheMostPopularBookGenre(String expectedGenre) {
         Assert.assertEquals(expectedGenre,DB_mostPopularGenre);
     }
+
+    // US 06
+    @When("the librarian click to add book")
+    public void the_librarian_click_to_add_book() {
+        bookPage.addBook.click();
+    }
+    @When("the librarian enter book name {string}")
+    public void the_librarian_enter_book_name(String name) {
+        bookPage.bookName.sendKeys(name);
+    }
+    @When("the librarian enter ISBN {string}")
+    public void the_librarian_enter_isbn(String isbn) {
+        bookPage.isbn.sendKeys(isbn);
+
+    }
+    @When("the librarian enter year {string}")
+    public void the_librarian_enter_year(String year) {
+        bookPage.year.sendKeys(year);
+    }
+    @When("the librarian enter author {string}")
+    public void the_librarian_enter_author(String author) {
+        bookPage.author.sendKeys(author);
+    }
+    @When("the librarian choose the book category {string}")
+    public void the_librarian_choose_the_book_category(String category) {
+        BrowserUtil.selectOptionDropdown(bookPage.categoryDropdown,category);
+    }
+    @When("the librarian click to save changes")
+    public void the_librarian_click_to_save_changes() {
+        bookPage.saveChanges.click();
+    }
+
+
+    @Then("verify {string} message is displayed")
+    public void verify_the_book_has_been_created_message_is_displayed(String expectedMessage) {
+        // You can verify message itself too both works
+        //OPT 1
+        String actualMessage = bookPage.toastMessage.getText();
+        Assert.assertEquals(expectedMessage,actualMessage);
+
+        //OPT 2
+        Assert.assertTrue(bookPage.toastMessage.isDisplayed());
+
+    }
+
+    @Then("verify {string} information must match with DB")
+    public void verify_information_must_match_with_db(String expectedBookName) {
+        String query = "select name, author, isbn from books\n" +
+                "where name = '"+expectedBookName+"'";
+
+        DB_Util.runQuery(query);
+
+        Map<String, String> rowMap = DB_Util.getRowMap(1);
+
+        String actualBookName = rowMap.get("name");
+
+        Assert.assertEquals(expectedBookName,actualBookName);
+
+    }
+
+
+    // US 07
+
+    @When("the user clicks Borrow Book")
+    public void the_user_clicks_borrow_book() {
+        bookPage.borrowBook(searchedBook).click();
+        BrowserUtil.waitFor(2);
+    }
+
+    @Then("verify that book is shown in {string} page")
+    public void verify_that_book_is_shown_in_page(String module) {
+        BorrowedBooksPage borrowedBooksPage = new BorrowedBooksPage();
+        new DashBoardPage().navigateModule(module);
+
+        List<String> allBorrowedBooks = BrowserUtil.getElementsText(borrowedBooksPage.allBorrowedBooksName);
+        boolean result = allBorrowedBooks.contains(searchedBook);
+        Assert.assertTrue(result);
+    }
+    @Then("verify logged student has same book in database")
+    public void verify_logged_student_has_same_book_in_database() {
+        String query = "select name from books b\n" +
+                "join book_borrow bb on b.id = bb.book_id\n" +
+                "join users u on bb.user_id = u.id\n" +
+                "where name = '"+searchedBook+"' and full_name = 'Test Student 5';";
+
+        DB_Util.runQuery(query);
+        List<String> actualList = DB_Util.getColumnDataAsList(1);
+        Assert.assertTrue(actualList.contains(searchedBook));
+    }
+
 }
