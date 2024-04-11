@@ -11,6 +11,7 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.Select;
 
 import java.util.List;
+import java.util.Map;
 
 public class BooksPageStepDefs {
 
@@ -55,13 +56,13 @@ public class BooksPageStepDefs {
         // bookName --> local to the method itself
         searchedBook = bookName;
         bookPage.search.sendKeys(searchedBook);
-        BrowserUtil.waitFor(5);
+        BrowserUtil.waitFor(1);
     }
 
     @And("the user clicks edit book button")
     public void theUserClicksEditBookButton() {
         bookPage.editBook(searchedBook).click();
-        BrowserUtil.waitFor(5);
+        BrowserUtil.waitFor(1);
     }
 
     @Then("book information must match the Database")
@@ -69,9 +70,35 @@ public class BooksPageStepDefs {
         // 1. Get data from UI elements
         String UIbookName = bookPage.bookName.getAttribute("value");
         System.out.println("UIbookName = " + UIbookName);
+        String UIauthorName = bookPage.author.getAttribute("value");
+        String UI_ISBN = bookPage.isbn.getAttribute("value");
+        String UIdescription = bookPage.description.getAttribute("value");
+        String UI_year = bookPage.year.getAttribute("value");
+
+        Select categoryDropDown = new Select(bookPage.categoryDropdown);
+        String UI_category = categoryDropDown.getFirstSelectedOption().getText();
+
         // 2.Get data from DB
+        String query = "select b.name as bookName, b.year, b.author, b.description, b.isbn, bc.name as categoryName from books b inner join book_categories bc on b.book_category_id = bc.id where b.name='"+searchedBook+"'";
+        DB_Util.runQuery(query);
+        Map<String, String> DB_info_rowMap = DB_Util.getRowMap(1);
+        System.out.println("DB_info_rowMap = " + DB_info_rowMap);
+
 
         // 3. Compare 2 data
+        Assert.assertEquals(UIbookName,DB_info_rowMap.get("bookName"));
+        Assert.assertEquals(UI_category,DB_info_rowMap.get("categoryName"));
+        Assert.assertEquals(UIdescription,DB_info_rowMap.get("description"));
+
+
+
+
+    }
+
+    @When("I execute query to find most popular book genre")
+    public void iExecuteQueryToFindMostPopularBookGenre() {
+
+
 
 
     }
