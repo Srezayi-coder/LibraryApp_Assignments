@@ -18,3 +18,8 @@ select count(*) from book_borrow where is_returned=0;
 select name from book_categories;
 
 select b.name, b.year, b.author, b.description, b.isbn, bc.name from books b inner join book_categories bc on b.book_category_id = bc.id where b.name='Clean Code';
+
+select bc.name, count(*) from book_borrow bb
+        inner join books b on bb.book_id = b.id
+        inner join book_categories bc on b.book_category_id = bc.id
+        group by bc.name order by count(*) desc limit 1;

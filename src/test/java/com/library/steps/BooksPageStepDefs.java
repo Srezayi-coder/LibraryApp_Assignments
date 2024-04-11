@@ -95,11 +95,21 @@ public class BooksPageStepDefs {
 
     }
 
+    String DB_mostPopularGenre;
     @When("I execute query to find most popular book genre")
     public void iExecuteQueryToFindMostPopularBookGenre() {
 
+    String query = "select bc.name, count(*) from book_borrow bb\n" +
+            "        inner join books b on bb.book_id = b.id\n" +
+            "        inner join book_categories bc on b.book_category_id = bc.id\n" +
+            "        group by bc.name order by count(*) desc limit 1";
+    DB_Util.runQuery(query);
+    DB_mostPopularGenre = DB_Util.getFirstRowFirstColumn();
+        System.out.println("DB_mostPopularGenre = " + DB_mostPopularGenre);
+    }
 
-
-
+    @Then("verify {string} is the most popular book genre.")
+    public void verifyIsTheMostPopularBookGenre(String expectedGenre) {
+        Assert.assertEquals(expectedGenre,DB_mostPopularGenre);
     }
 }
