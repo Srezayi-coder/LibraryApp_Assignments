@@ -16,6 +16,7 @@ public class BooksPageStepDefs {
 
     BasePage basePage;
     List<String> categoriesFromUI;
+    BookPage bookPage = new BookPage();
     @When("the user navigates to {string} page")
     public void the_user_navigates_to_page(String module) {
 
@@ -45,6 +46,33 @@ public class BooksPageStepDefs {
         System.out.println("categoriesFromDB = " + categoriesFromDB);
 
         Assert.assertEquals(categoriesFromUI,categoriesFromDB);
+
+    }
+
+    String searchedBook; // more accessible variable that will hold book name
+    @When("the user searches for {string} book")
+    public void theUserSearchesForBook(String bookName) {
+        // bookName --> local to the method itself
+        searchedBook = bookName;
+        bookPage.search.sendKeys(searchedBook);
+        BrowserUtil.waitFor(5);
+    }
+
+    @And("the user clicks edit book button")
+    public void theUserClicksEditBookButton() {
+        bookPage.editBook(searchedBook).click();
+        BrowserUtil.waitFor(5);
+    }
+
+    @Then("book information must match the Database")
+    public void bookInformationMustMatchTheDatabase() {
+        // 1. Get data from UI elements
+        String UIbookName = bookPage.bookName.getAttribute("value");
+        System.out.println("UIbookName = " + UIbookName);
+        // 2.Get data from DB
+
+        // 3. Compare 2 data
+
 
     }
 }

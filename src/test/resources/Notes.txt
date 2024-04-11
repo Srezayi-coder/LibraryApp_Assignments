@@ -1,0 +1,12 @@
+DB Automation we are using JDBC
+What is JDBC? -- API that communicates Java Code with DataBase management system (SQL, PostgreSQL, MySQL etc.)
+
+How can we use same Java code for different DB MS?
+        - By the help of Driver specific to that DB System.
+
+Who creates the drivers?
+    We use MySQl, MySQL company creates the driver too.
+
+In Cucumber framework DB and UI connection happens with the help of custom Hook Java class, we have custom annotations for Before and After test step methods.
+
+With the help of DB Utils, there are custom methods that use, Connection, Statement and Resultset Objects to connect and retrive the data and manipulate with resultset metadata and database metadata, we can easily automate DB systems.
